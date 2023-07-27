@@ -1,0 +1,21 @@
+syntax = "proto3";
+package grpcService;
+option go_package = "../grpcService;grpcService";
+import "google/api/annotations.proto";
+message Req{
+  string name=1;
+}
+
+message Res{
+  string ans=1;
+}
+service TestGRPCService{
+  rpc TestGRPC(Req)returns(Res){
+    option(google.api.http)={
+      post:"/api/taozixun",
+      body:"*"
+    };
+  };
+}
+//-I代表从哪个路径开始找import包
+//protoc -I ./pb/ --go_out=. --go_opt=paths=source_relative --grpc-gateway_out . --grpc-gateway_opt paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./pb/spike.proto

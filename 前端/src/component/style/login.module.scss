@@ -1,0 +1,21 @@
+.container{
+    position: absolute;
+    width: 500px;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%,-50%);
+    .eachLine{
+        display: flex;
+        margin-bottom: 10px;
+        div{
+            width: 55px;
+            margin-top: 4px;
+        }
+    }
+    .bt{
+        display: flex;
+        justify-content: space-between;
+        width: 160px;
+        margin: 0 auto;
+    }
+}
