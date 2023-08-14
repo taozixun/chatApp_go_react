@@ -11,7 +11,6 @@ func main() {
 	initbefore.InitDateBase()     //初始化数据库
 	go initbefore.InitWebSocket() //初始化ws
 	go initbefore.InitRedis()     //初始化redis
-
 	r := gin.Default()
 	// 创建自定义的跨域请求中间件
 	config := cors.DefaultConfig()

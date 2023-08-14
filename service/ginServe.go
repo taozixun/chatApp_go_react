@@ -1,11 +1,14 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	initbefore "test/init"
 	"test/utils"
+	"time"
 )
 
 type loginMsg struct {
@@ -81,20 +84,47 @@ func HandleCheckToken(c *gin.Context) {
 		"data": token.Claims,
 	})
 }
-
 func HandleUserDetail(c *gin.Context) {
-	userDetail := initbefore.UserDetail{}
 	userId := c.Query("userId")
-	initbefore.DB.Where("user_id = ?", userId).First(&userDetail)
-	if userDetail.UserId == "" {
+	//先去查缓存
+	val := initbefore.RedisClient.Get(context.TODO(), userId+"_detail")
+	userDetail := initbefore.UserDetail{}
+	if val.Val() == "" {
+		fmt.Println("缓存不存在/缓存已过期")
+		initbefore.DB.Where("user_id = ?", userId).First(&userDetail)
+		jsonData, e := json.Marshal(userDetail)
+		if e != nil {
+			fmt.Println("数据json序列化出错")
+			c.JSON(200, gin.H{
+				"msg": "数据json序列化出错",
+			})
+			return
+		}
+		if userDetail.UserId == "" {
+			initbefore.RedisClient.Set(context.TODO(), userId+"_detail", jsonData, 5*time.Second) //假数据5s后过期，防止缓存击穿
+			c.JSON(200, gin.H{
+				"msg": "未设置详情信息",
+			})
+			return
+		}
+		initbefore.RedisClient.Set(context.TODO(), userId+"_detail", jsonData, 30*time.Second) //真数据，30s过期
 		c.JSON(200, gin.H{
-			"msg": "未设置详情信息",
+			"data": userDetail,
 		})
-		return
+	} else {
+		fmt.Println("直接从redis中拿数据")
+		json.Unmarshal([]byte(val.Val()), &userDetail)
+		if userDetail.UserId == "" {
+			c.JSON(200, gin.H{
+				"msg": "未设置详情信息",
+			})
+			return
+		}
+		c.JSON(200, gin.H{
+			"data": userDetail,
+		})
 	}
-	c.JSON(200, gin.H{
-		"data": userDetail,
-	})
+
 }
 
 func SetUserDetail(c *gin.Context) {
@@ -133,6 +163,16 @@ func SetUserDetail(c *gin.Context) {
 			return
 		}
 	}
+	//保持数据一致性，更新用户信息时，要同步更新redis
+	jsonData, e := json.Marshal(userDetail)
+	if e != nil {
+		fmt.Println("数据json序列化出错")
+		c.JSON(200, gin.H{
+			"msg": "数据json序列化出错",
+		})
+		return
+	}
+	initbefore.RedisClient.Set(context.TODO(), userDetail.UserId+"_detail", jsonData, 30*time.Second) //真数据，30s过期
 	c.JSON(200, gin.H{
 		"msg": "创建成功",
 	})

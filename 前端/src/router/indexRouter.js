@@ -5,6 +5,7 @@ import Chat from "../component/chat"
 import FriendList from "../component/fiendList"
 import OneOnOne from "../component/oneOnOne"
 import AboutMe from "../component/aboutMe"
+import AboutFriend from "../component/aboutFriend"
 const IndexRouter=()=>{
     return (
         <HashRouter>
@@ -15,6 +16,7 @@ const IndexRouter=()=>{
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/oneOnOne" element={<OneOnOne />} />
                 <Route path="/aboutMe" element={<AboutMe />} />
+                <Route path="/aboutFriend" element={<AboutFriend />} />
             </Routes>
         </HashRouter>
     )

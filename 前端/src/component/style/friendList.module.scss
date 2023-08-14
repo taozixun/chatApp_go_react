@@ -34,6 +34,8 @@
         .eachItem{
             display: flex;
             margin-bottom: 5px;
+            justify-content: space-around;
+            width: 100%;
             div{
                 margin-top: 3px;
                 padding: 0 10px;

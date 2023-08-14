@@ -99,6 +99,11 @@ const FriendList=()=>{
                     friendList.map((item)=>{
                         return(
                             <div key={item.ID} className={styles.eachItem}>
+                                <Button type="dashed" onClick={()=>{
+                                    navigate(`/aboutFriend?friend=${item.UserId}`)
+                                }}>
+                                    好友信息
+                                </Button>
                                 <Button type="dashed" danger onClick={()=>{handleDeleteFriend(item.UserId)}}>
                                     删除好友
                                 </Button>

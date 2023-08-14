@@ -27,7 +27,7 @@ type UserDetail struct {
 var DB *gorm.DB
 
 func InitDateBase() {
-	dsn := "root:123456@tcp(127.0.0.1:3306)/testUser?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:123456@tcp(127.0.0.1:3306)/demo?charset=utf8mb4&parseTime=True&loc=Local"
 	//gorm.Config里配置打印sql语句
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.New(
