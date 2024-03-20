@@ -35,11 +35,13 @@ func HandleAddFriend(c *gin.Context) {
 		})
 		return
 	}
+	tx := initbefore.DB.Begin()
 	// 将 friend 添加到 user 的好友列表中
 	user.Friends = append(user.Friends, friend)
-	e := initbefore.DB.Save(&user).Error
+	e := tx.Save(&user).Error
 	if e != nil {
 		fmt.Println(e)
+		tx.Rollback()
 		c.JSON(200, gin.H{
 			"msg": "添加好友失败",
 		})
@@ -47,9 +49,18 @@ func HandleAddFriend(c *gin.Context) {
 	}
 	//好友属性双向绑定
 	friend.Friends = append(friend.Friends, user)
-	e = initbefore.DB.Save(&friend).Error
+	e = tx.Save(&friend).Error
 	if e != nil {
 		fmt.Println(e)
+		tx.Rollback()
+		c.JSON(200, gin.H{
+			"msg": "添加好友失败",
+		})
+		return
+	}
+	if err := tx.Commit().Error; err != nil {
+		fmt.Println(err)
+		tx.Rollback()
 		c.JSON(200, gin.H{
 			"msg": "添加好友失败",
 		})
